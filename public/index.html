@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f4f7fb">
+    <title>Weather Tracker</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #17243b;
+        background: #f4f7fb;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-width: 320px;
+        min-height: 100vh;
+        background:
+          radial-gradient(ellipse at 85% 0%, rgb(91 141 239 / 14%), transparent 34rem),
+          #f4f7fb;
+      }
+
+      main {
+        width: min(1120px, calc(100% - 40px));
+        margin: 0 auto;
+        padding: 48px 0 64px;
+      }
+
+      .hero {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 30px;
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        color: #536f9c;
+        font-size: 0.75rem;
+        font-weight: 750;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2rem, 5vw, 3.25rem);
+        letter-spacing: -0.055em;
+        line-height: 1;
+      }
+
+      .subtitle {
+        margin: 12px 0 0;
+        color: #64748b;
+        font-size: 0.98rem;
+      }
+
+      .weather-mark {
+        display: grid;
+        width: 58px;
+        height: 58px;
+        flex: 0 0 auto;
+        place-items: center;
+        border: 1px solid #dce7fa;
+        border-radius: 18px;
+        background: #fff;
+        color: #3872d8;
+        font-size: 1.8rem;
+        box-shadow: 0 10px 24px rgb(34 65 117 / 8%);
+      }
+
+      .panel {
+        border: 1px solid #e4eaf3;
+        border-radius: 20px;
+        background: rgb(255 255 255 / 92%);
+        box-shadow: 0 14px 36px rgb(35 57 89 / 5%);
+      }
+
+      .add-panel {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 18px;
+      }
+
+      .input-wrap {
+        position: relative;
+        flex: 1;
+      }
+
+      .input-wrap span {
+        position: absolute;
+        top: 50%;
+        left: 15px;
+        color: #8493a8;
+        font-size: 1.1rem;
+        transform: translateY(-50%);
+      }
+
+      input {
+        width: 100%;
+        min-height: 48px;
+        padding: 0 15px 0 44px;
+        border: 1px solid #dce4ef;
+        border-radius: 12px;
+        outline: none;
+        background: #fbfcfe;
+        color: #17243b;
+        font: inherit;
+        transition: border-color 150ms ease, box-shadow 150ms ease;
+      }
+
+      input:focus {
+        border-color: #6592e5;
+        box-shadow: 0 0 0 4px rgb(74 126 222 / 13%);
+      }
+
+      button {
+        min-height: 48px;
+        padding: 0 20px;
+        border: 0;
+        border-radius: 12px;
+        background: #2868d4;
+        color: #fff;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 150ms ease, transform 150ms ease;
+      }
+
+      button:hover { background: #1d57b9; }
+      button:active { transform: translateY(1px); }
+      button:disabled { cursor: wait; opacity: 0.68; }
+
+      .status {
+        min-height: 24px;
+        margin: 10px 4px 0;
+        color: #64748b;
+        font-size: 0.88rem;
+      }
+
+      .status.error { color: #b42332; }
+      .status.success { color: #16704a; }
+
+      .section-heading {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 16px;
+        margin: 32px 2px 14px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 1.08rem;
+        letter-spacing: -0.02em;
+      }
+
+      .section-note {
+        color: #8090a6;
+        font-size: 0.8rem;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(205px, 1fr));
+        gap: 14px;
+      }
+
+      .summary-card {
+        position: relative;
+        overflow: hidden;
+        padding: 18px;
+      }
+
+      .summary-card::after {
+        position: absolute;
+        top: -34px;
+        right: -28px;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: rgb(75 126 222 / 7%);
+        content: "";
+      }
+
+      .summary-city {
+        margin: 0;
+        color: #52647e;
+        font-size: 0.88rem;
+        font-weight: 650;
+      }
+
+      .summary-temp {
+        margin: 12px 0 13px;
+        font-size: 2rem;
+        font-weight: 750;
+        letter-spacing: -0.06em;
+      }
+
+      .summary-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 14px;
+        color: #76869b;
+        font-size: 0.78rem;
+      }
+
+      .chart-panel { padding: 20px 20px 16px; }
+      .chart-wrap { position: relative; height: 270px; }
+
+      .table-panel { overflow: hidden; }
+      .table-scroll { overflow-x: auto; }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        white-space: nowrap;
+        text-align: left;
+      }
+
+      th, td { padding: 14px 16px; }
+
+      th {
+        background: #f9fbfe;
+        color: #78889e;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+      }
+
+      td {
+        border-top: 1px solid #edf1f6;
+        color: #46566e;
+        font-size: 0.85rem;
+      }
+
+      td:first-child { color: #1e2d45; font-weight: 650; }
+
+      .empty-state {
+        padding: 28px 16px;
+        color: #8090a6;
+        text-align: center;
+      }
+
+      @media (max-width: 640px) {
+        main { width: min(100% - 24px, 1120px); padding-top: 30px; }
+        .hero { align-items: flex-start; }
+        .weather-mark { width: 48px; height: 48px; border-radius: 15px; }
+        .add-panel { align-items: stretch; flex-direction: column; }
+        button { width: 100%; }
+        .section-heading { align-items: flex-start; flex-direction: column; gap: 5px; }
+        .chart-panel { padding: 16px 12px 12px; }
+        .chart-wrap { height: 230px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Mona's Weather Tracker</p>
+          <h1>Weather, at a glance.</h1>
+          <p class="subtitle">Live conditions and recent observations for your cities.</p>
+        </div>
+        <div class="weather-mark" aria-hidden="true">☀</div>
+      </header>
+
+      <form class="panel add-panel" id="refresh-form">
+        <label class="input-wrap">
+          <span aria-hidden="true">⌕</span>
+          <input id="city-input" name="city" type="text" maxlength="100" placeholder="Enter a city, e.g. London" aria-label="City name" required>
+        </label>
+        <button id="refresh-button" type="submit">Add / Refresh</button>
+      </form>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+
+      <section aria-labelledby="summary-heading">
+        <div class="section-heading">
+          <h2 id="summary-heading">City overview</h2>
+          <span class="section-note">Latest temperature · average · saved logs</span>
+        </div>
+        <div class="summary-grid" id="summary-grid"></div>
+      </section>
+
+      <section aria-labelledby="chart-heading">
+        <div class="section-heading">
+          <h2 id="chart-heading">Temperature history</h2>
+          <span class="section-note">Most recent 50 observations</span>
+        </div>
+        <div class="panel chart-panel">
+          <div class="chart-wrap"><canvas id="temperature-chart" aria-label="Temperature history line chart"></canvas></div>
+        </div>
+      </section>
+
+      <section aria-labelledby="logs-heading">
+        <div class="section-heading">
+          <h2 id="logs-heading">Recent observations</h2>
+          <span class="section-note">Latest 50 weather logs</span>
+        </div>
+        <div class="panel table-panel">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>City</th><th>Temperature</th><th>Condition</th>
+                  <th>Humidity</th><th>Wind</th><th>Logged at</th>
+                </tr>
+              </thead>
+              <tbody id="logs-body"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="logs-empty" hidden>No observations yet. Add a city to get started.</div>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      const form = document.querySelector("#refresh-form");
+      const cityInput = document.querySelector("#city-input");
+      const refreshButton = document.querySelector("#refresh-button");
+      const status = document.querySelector("#status");
+      const logsBody = document.querySelector("#logs-body");
+      const logsEmpty = document.querySelector("#logs-empty");
+      const summaryGrid = document.querySelector("#summary-grid");
+      let temperatureChart;
+
+      // Format a temperature value for the dashboard.
+      function formatTemperature(value) {
+        return value === null ? "—" : `${Number(value).toFixed(1)} °C`;
+      }
+
+      // Add a text-only table cell to avoid treating API values as markup.
+      function appendCell(row, value) {
+        const cell = document.createElement("td");
+        cell.textContent = value;
+        row.append(cell);
+      }
+
+      // Render recent logs into the observations table.
+      function renderLogs(logs) {
+        logsBody.replaceChildren();
+        logsEmpty.hidden = logs.length !== 0;
+
+        for (const log of logs) {
+          const row = document.createElement("tr");
+          appendCell(row, `${log.city}${log.country ? `, ${log.country}` : ""}`);
+          appendCell(row, formatTemperature(log.temperature_c));
+          appendCell(row, log.condition ?? "—");
+          appendCell(row, log.humidity === null ? "—" : `${log.humidity}%`);
+          appendCell(row, log.wind_kmh === null ? "—" : `${Number(log.wind_kmh).toFixed(1)} km/h`);
+          appendCell(row, log.created_at);
+          logsBody.append(row);
+        }
+      }
+
+      // Render one summary card for each city.
+      function renderSummaries(summaries) {
+        summaryGrid.replaceChildren();
+
+        if (summaries.length === 0) {
+          const empty = document.createElement("p");
+          empty.className = "empty-state panel";
+          empty.textContent = "City summaries will appear after the first observation.";
+          summaryGrid.append(empty);
+          return;
+        }
+
+        for (const summary of summaries) {
+          const card = document.createElement("article");
+          card.className = "panel summary-card";
+          const city = document.createElement("p");
+          city.className = "summary-city";
+          city.textContent = `${summary.city}${summary.country ? ` · ${summary.country}` : ""}`;
+          const temperature = document.createElement("p");
+          temperature.className = "summary-temp";
+          temperature.textContent = formatTemperature(summary.latest_temperature_c);
+          const meta = document.createElement("div");
+          meta.className = "summary-meta";
+          const average = document.createElement("span");
+          average.textContent = `Avg ${formatTemperature(summary.average_temperature_c)}`;
+          const count = document.createElement("span");
+          count.textContent = `${summary.log_count} ${summary.log_count === 1 ? "log" : "logs"}`;
+          meta.append(average, count);
+          card.append(city, temperature, meta);
+          summaryGrid.append(card);
+        }
+      }
+
+      // Update the temperature chart with the observations in chronological order.
+      function renderChart(logs) {
+        const orderedLogs = [...logs].reverse();
+        const labels = orderedLogs.map((log) => `${log.city} · ${log.created_at}`);
+        const values = orderedLogs.map((log) => log.temperature_c);
+        const context = document.querySelector("#temperature-chart");
+
+        if (temperatureChart) {
+          temperatureChart.data.labels = labels;
+          temperatureChart.data.datasets[0].data = values;
+          temperatureChart.update();
+          return;
+        }
+
+        if (typeof Chart === "undefined") {
+          status.textContent = "The chart library could not be loaded; logs and summaries are still available.";
+          status.className = "status error";
+          return;
+        }
+
+        temperatureChart = new Chart(context, {
+          type: "line",
+          data: {
+            labels,
+            datasets: [{
+              label: "Temperature (°C)",
+              data: values,
+              borderColor: "#3474dc",
+              backgroundColor: "rgb(52 116 220 / 12%)",
+              pointBackgroundColor: "#fff",
+              pointBorderColor: "#3474dc",
+              pointBorderWidth: 2,
+              pointRadius: 4,
+              fill: true,
+              tension: 0.32
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { intersect: false, mode: "index" },
+            plugins: {
+              legend: { display: false },
+              tooltip: { callbacks: { label: (item) => `${item.parsed.y.toFixed(1)} °C` } }
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 7 } },
+              y: { title: { display: true, text: "°C" }, grid: { color: "#edf1f6" } }
+            }
+          }
+        });
+      }
+
+      // Load logs and per-city summaries from the local dashboard API.
+      async function loadDashboard() {
+        const [logsResponse, summaryResponse] = await Promise.all([
+          fetch("/api/logs"),
+          fetch("/api/summary")
+        ]);
+        if (!logsResponse.ok || !summaryResponse.ok) {
+          throw new Error("Could not load dashboard data.");
+        }
+
+        const [{ logs }, { summaries }] = await Promise.all([
+          logsResponse.json(),
+          summaryResponse.json()
+        ]);
+        renderLogs(logs);
+        renderSummaries(summaries);
+        renderChart(logs);
+      }
+
+      // Refresh weather for the requested city, then reload the dashboard.
+      async function refreshCity(city) {
+        const url = new URL("/api/refresh", window.location.origin);
+        url.searchParams.set("city", city);
+        const response = await fetch(url, { method: "POST" });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error ?? "Could not refresh this city.");
+        await loadDashboard();
+        return result.weather;
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const city = cityInput.value.trim();
+        if (!city) return;
+
+        refreshButton.disabled = true;
+        status.className = "status";
+        status.textContent = `Fetching current weather for ${city}…`;
+        try {
+          const weather = await refreshCity(city);
+          status.className = "status success";
+          status.textContent = `Saved ${weather.city}, ${weather.country}: ${formatTemperature(weather.temperatureC)} · ${weather.condition}.`;
+          cityInput.value = "";
+        } catch (error) {
+          status.className = "status error";
+          status.textContent = error.message;
+        } finally {
+          refreshButton.disabled = false;
+        }
+      });
+
+      loadDashboard().catch((error) => {
+        status.className = "status error";
+        status.textContent = error.message;
+      });
+    </script>
+  </body>
+</html>
