@@ -21,6 +21,30 @@ In this exercise, you will:
 3. Have the agent **build a CLI**, then open a pull request.
 4. Add a **web dashboard**, **verify** the data through MCP, and **merge**.
 
+## Weather tracker CLI
+
+The CLI stores current Open-Meteo observations in `weather.db`.
+
+```bash
+# Add a current weather log
+node src/cli.js add "London"
+
+# List the 10 most recent logs (or choose a limit)
+node src/cli.js list
+node src/cli.js list --limit 5
+
+# Show temperature statistics for a city
+node src/cli.js stats "London"
+```
+
+Equivalent npm scripts are available:
+
+```bash
+npm run add -- "London"
+npm run list -- --limit 5
+npm run stats -- "London"
+```
+
 ### What you'll end up with
 
 ```
